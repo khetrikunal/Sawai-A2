@@ -529,18 +529,18 @@ function StructuredData({ json }) {
 }
 var sizes = [
 	{
-		name: "500 ml",
-		price: 699,
+		name: "200 ml",
+		price: 640,
 		note: "A little richness, every day."
 	},
 	{
-		name: "1 Litre",
-		price: 1299,
+		name: "500 ml",
+		price: 1600,
 		note: "For the heart of your kitchen."
 	},
 	{
-		name: "5 Litre",
-		price: 5799,
+		name: "1 Litre",
+		price: 3200,
 		note: "For families and professional kitchens."
 	}
 ];
