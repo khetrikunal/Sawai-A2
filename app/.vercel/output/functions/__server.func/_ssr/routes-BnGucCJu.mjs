@@ -530,17 +530,23 @@ function StructuredData({ json }) {
 var sizes = [
 	{
 		name: "200 ml",
+		mrp: 800,
 		price: 640,
+		discount: 20,
 		note: "A little richness, every day."
 	},
 	{
 		name: "500 ml",
+		mrp: 2000,
 		price: 1600,
+		discount: 20,
 		note: "For the heart of your kitchen."
 	},
 	{
 		name: "1 Litre",
+		mrp: 4000,
 		price: 3200,
+		discount: 20,
 		note: "For families and professional kitchens."
 	}
 ];
@@ -1056,7 +1062,28 @@ function Home() {
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "product-price",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: ["₹", sizes[size].price.toLocaleString("en-IN")] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Catalogue price per jar" })]
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+											className: "price-badge",
+											children: [sizes[size].discount, "% OFF"]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "price-row",
+											children: [
+												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+													className: "price-mrp",
+													children: ["₹", sizes[size].mrp.toLocaleString("en-IN")]
+												}),
+												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+													className: "price-sale",
+													children: ["₹", sizes[size].price.toLocaleString("en-IN")]
+												})
+											]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("small", {
+											children: ["Price per jar · MRP ₹", sizes[size].mrp.toLocaleString("en-IN")]
+										})
+									]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "quantity-line",
@@ -1136,7 +1163,7 @@ function Home() {
 								className: "ghee-faq",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { children: ["What makes the Bilona method different?", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(n, { size: 18 })] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "It begins with cultured curd. The curd is churned into butter before being heated into ghee, following the traditional milk-to-curd-to-butter sequence." })] }),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { children: ["Which jar should I choose?", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(n, { size: 18 })] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Choose 500 ml for a smaller kitchen, 1 Litre for regular family cooking, or enquire about 5 Litre for a larger household or business." })] }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { children: ["Which jar should I choose?", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(n, { size: 18 })] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Choose 200 ml for a taste, 500 ml for a smaller kitchen, or 1 Litre for regular family cooking." })] }),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("summary", { children: ["How do I place an order?", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(n, { size: 18 })] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Select a size and quantity, then choose Shop Now to open a WhatsApp enquiry. Our team confirms the current price and delivery before payment." })] })
 								]
 							})
