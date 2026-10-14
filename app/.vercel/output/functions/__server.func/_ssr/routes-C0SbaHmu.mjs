@@ -4,7 +4,7 @@ import { a as m, c as c$1, i as n, s as c } from "../_libs/phosphor-icons__react
 import { n as scrollScrubTheme, t as scrollScrubScenes } from "./scroll-scrub-scenes-B0ArZ5at.mjs";
 import { n as gsapWithCSS, t as ScrollTrigger } from "../_libs/gsap.mjs";
 import { t as Lenis } from "../_libs/lenis.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-BnGucCJu.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-C0SbaHmu.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
@@ -537,14 +537,14 @@ var sizes = [
 	},
 	{
 		name: "500 ml",
-		mrp: 2000,
+		mrp: 2e3,
 		price: 1600,
 		discount: 20,
 		note: "For the heart of your kitchen."
 	},
 	{
 		name: "1 Litre",
-		mrp: 4000,
+		mrp: 4e3,
 		price: 3200,
 		discount: 20,
 		note: "For families and professional kitchens."
@@ -1069,20 +1069,15 @@ function Home() {
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "price-row",
-											children: [
-												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-													className: "price-mrp",
-													children: ["₹", sizes[size].mrp.toLocaleString("en-IN")]
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-													className: "price-sale",
-													children: ["₹", sizes[size].price.toLocaleString("en-IN")]
-												})
-											]
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "price-mrp",
+												children: ["₹", sizes[size].mrp.toLocaleString("en-IN")]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "price-sale",
+												children: ["₹", sizes[size].price.toLocaleString("en-IN")]
+											})]
 										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("small", {
-											children: ["Price per jar · MRP ₹", sizes[size].mrp.toLocaleString("en-IN")]
-										})
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("small", { children: ["Price per jar · MRP ₹", sizes[size].mrp.toLocaleString("en-IN")] })
 									]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {

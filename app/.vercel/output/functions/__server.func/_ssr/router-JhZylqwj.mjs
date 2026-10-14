@@ -5,11 +5,11 @@ import { t as Route$4 } from "./app-pLgLE2vk.mjs";
 import { n as scrollScrubTheme } from "./scroll-scrub-scenes-B0ArZ5at.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-CmW9J-DY.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-JhZylqwj.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var styles_default = "/assets/styles-nAX4Z5Q0.css";
-var sawai_default = "/assets/sawai-Dje9oGEZ.css";
+var sawai_default = "/assets/sawai-C-JX6nYI.css";
 function reportHiggsfieldError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__higgsfieldEvents?.captureException?.(error, {
@@ -47,7 +47,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }) {
 	const router = useRouter();
 	(0, import_react.useEffect)(() => {
-		reportHiggsfieldError(error, { boundary: "sawai_root" });
+		reportHiggsfieldError(error instanceof Error ? error : new Error(String(error)), { boundary: "sawai_root" });
 	}, [error]);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 		className: "sawai-error",
@@ -213,7 +213,21 @@ function RootComponent() {
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {})
 	});
 }
-var Route$2 = createFileRoute("/sitemap.xml")({ server: { handlers: { GET: async ({ request }) => {
+var $$splitComponentImporter = () => import("./routes-C0SbaHmu.mjs");
+var Route$2 = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
+var Route$1 = createFileRoute("/robots.txt")({ server: { handlers: { GET: async ({ request }) => {
+	const body = [
+		"User-agent: *",
+		"Allow: /",
+		"",
+		`Sitemap: ${new URL(request.url).origin}/sitemap.xml`
+	].join("\n");
+	return new Response(body, { headers: {
+		"Content-Type": "text/plain; charset=utf-8",
+		"Cache-Control": "public, max-age=86400"
+	} });
+} } } });
+var Route = createFileRoute("/sitemap.xml")({ server: { handlers: { GET: async ({ request }) => {
 	const origin = new URL(request.url).origin;
 	const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
 	const xml = [
@@ -232,44 +246,27 @@ var Route$2 = createFileRoute("/sitemap.xml")({ server: { handlers: { GET: async
 		"Cache-Control": "public, max-age=3600"
 	} });
 } } } });
-var Route$1 = createFileRoute("/robots.txt")({ server: { handlers: { GET: async ({ request }) => {
-	const body = [
-		"User-agent: *",
-		"Allow: /",
-		"",
-		`Sitemap: ${new URL(request.url).origin}/sitemap.xml`
-	].join("\n");
-	return new Response(body, { headers: {
-		"Content-Type": "text/plain; charset=utf-8",
-		"Cache-Control": "public, max-age=86400"
-	} });
-} } } });
-var $$splitComponentImporter = () => import("./routes-BnGucCJu.mjs");
-var Route = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
-var SitemapDotxmlRoute = Route$2.update({
-	id: "/sitemap.xml",
-	path: "/sitemap.xml",
-	getParentRoute: () => Route$3
-});
-var RobotsDottxtRoute = Route$1.update({
-	id: "/robots.txt",
-	path: "/robots.txt",
-	getParentRoute: () => Route$3
-});
-var AppRoute = Route$4.update({
-	id: "/app",
-	path: "/app",
-	getParentRoute: () => Route$3
-});
 var rootRouteChildren = {
-	IndexRoute: Route.update({
+	IndexRoute: Route$2.update({
 		id: "/",
 		path: "/",
 		getParentRoute: () => Route$3
 	}),
-	AppRoute,
-	RobotsDottxtRoute,
-	SitemapDotxmlRoute
+	AppRoute: Route$4.update({
+		id: "/app",
+		path: "/app",
+		getParentRoute: () => Route$3
+	}),
+	RobotsDottxtRoute: Route$1.update({
+		id: "/robots.txt",
+		path: "/robots.txt",
+		getParentRoute: () => Route$3
+	}),
+	SitemapDotxmlRoute: Route.update({
+		id: "/sitemap.xml",
+		path: "/sitemap.xml",
+		getParentRoute: () => Route$3
+	})
 };
 var routeTree = Route$3._addFileChildren(rootRouteChildren)._addFileTypes();
 var getRouter = () => {

@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/createCsrfMiddleware-BoF_ie7B.js
+//#region node_modules/.nitro/vite/services/ssr/assets/createStart-BcgIP9EO.js
 var createMiddleware = (options, __opts) => {
 	const resolvedOptions = {
 		type: "request",
@@ -78,5 +78,28 @@ async function getFailureResponse(opts, ctx) {
 	if (typeof opts.failureResponse === "function") return opts.failureResponse(ctx);
 	return opts.failureResponse?.clone() ?? new Response("Forbidden", { status: 403 });
 }
+function dedupeSerializationAdapters(deduped, serializationAdapters) {
+	for (let i = 0, len = serializationAdapters.length; i < len; i++) {
+		const current = serializationAdapters[i];
+		if (!deduped.has(current)) {
+			deduped.add(current);
+			if (current.extends) dedupeSerializationAdapters(deduped, current.extends);
+		}
+	}
+}
+var createStart = (getOptions) => {
+	return {
+		getOptions: async () => {
+			const options = await getOptions();
+			if (options.serializationAdapters) {
+				const deduped = /* @__PURE__ */ new Set();
+				dedupeSerializationAdapters(deduped, options.serializationAdapters);
+				options.serializationAdapters = Array.from(deduped);
+			}
+			return options;
+		},
+		createMiddleware
+	};
+};
 //#endregion
-export { createMiddleware as n, createCsrfMiddleware as t };
+export { createMiddleware as n, createStart as r, createCsrfMiddleware as t };
