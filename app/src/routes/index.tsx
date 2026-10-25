@@ -1,10 +1,11 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, ArrowDown, Plus, Minus } from "@phosphor-icons/react";
 import { ScrollScrub } from "@/components/scroll-scrub/scroll-scrub";
 import { scrollScrubScenes, scrollScrubTheme } from "@/scroll-scrub-scenes";
 import { useCampaignMotion } from "@/components/sawai/use-campaign-motion";
 import { StructuredData } from "@/components/StructuredData";
+import { OfferPopup } from "@/components/OfferPopup";
 
 export const Route = createFileRoute("/")({ component: Home });
 const sizes = [
@@ -164,6 +165,7 @@ function Home() {
         <div className="footer-main"><a className="footer-brand" href="#home"><img src="/assets/brand/mark.webp" alt="Sawai Gir Amrut" loading="lazy" width="78" height="78" /><span>SAWAI<br /><small>GIR AMRUT</small></span></a><p>A2 Gir cow ghee.<br />Rooted in the Bilona tradition.</p><nav aria-label="Footer navigation"><a href="#story">Our Story</a><a href="#why">Why Our Ghee</a><a href="#products">Products</a><a href="tel:+919156996309">Contact</a></nav><address>Sawai Gir Farm<br />Malwadi, Post Bibi, Tal. Phaltan<br />Satara, Maharashtra 415537<br /><a href="tel:+919156996309">+91 91569 96309</a></address></div>
         <div className="footer-bottom"><span>© 2026 Sawai Gir Amrut. All rights reserved.</span><span>Made with tradition. Presented with care.</span><a href="#home" aria-label="Back to top">Back to top ↑</a></div>
       </footer>
+      <OfferPopup />
     </div>
   );
 }
