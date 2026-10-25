@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, ArrowDown, Plus, Minus } from "@phosphor-icons/react";
+import { ArrowUpRight, ArrowDown, Plus, Minus, WhatsappLogo } from "@phosphor-icons/react";
 import { ScrollScrub } from "@/components/scroll-scrub/scroll-scrub";
 import { scrollScrubScenes, scrollScrubTheme } from "@/scroll-scrub-scenes";
 import { useCampaignMotion } from "@/components/sawai/use-campaign-motion";
@@ -12,6 +12,30 @@ const sizes = [
   { name: "200 ml", mrp: 800, price: 640, discount: 20, note: "A little richness, every day." },
   { name: "500 ml", mrp: 2000, price: 1600, discount: 20, note: "For the heart of your kitchen." },
   { name: "1 Litre", mrp: 4000, price: 3200, discount: 20, note: "For families and professional kitchens." },
+];
+const offers = [
+  {
+    id: "offer-pavitra-bhet",
+    tag: "Festive Exclusive",
+    title: "Pavitra Bhet Combo",
+    desc: "200 ml Pure A2 Gir Cow Bilona Ghee + 50 ml Gomutra + 1 Cow Dung Govari",
+    price: 349,
+    image: "/offer%201.jpeg",
+    alt: "Sawai Gir Amrut Festive Offer - 200ml A2 Gir Cow Ghee, 50ml Gomutra, and 1 Govari for ₹349",
+    waMessage:
+      "Hello Sawai Gir Amrut, I would like to order the Diwali Pavitra Bhet Combo (200ml Ghee + 50ml Gomutra + 1 Govari @ ₹349). Please confirm availability and delivery.",
+  },
+  {
+    id: "offer-satvik-sangam",
+    tag: "Festive Exclusive",
+    title: "Satvik Sangam Combo",
+    desc: "200 ml Pure A2 Gir Cow Bilona Ghee + 90 ml Gomutra + 1 Cow Dung Govari",
+    price: 349,
+    image: "/offer.jpeg",
+    alt: "Sawai Gir Amrut Wellness Offer - 200ml A2 Gir Cow Ghee, 90ml Gomutra, and 1 Govari for ₹349",
+    waMessage:
+      "Hello Sawai Gir Amrut, I would like to order the Diwali Satvik Sangam Combo (200ml Ghee + 90ml Gomutra + 1 Govari @ ₹349). Please confirm availability and delivery.",
+  },
 ];
 const schema = JSON.stringify({
   "@context": "https://schema.org",
@@ -56,7 +80,7 @@ function Home() {
           <span><strong>SAWAI</strong><small>GIR AMRUT</small></span>
         </a>
         <nav className="desktop-links" aria-label="Main navigation">
-          <a href="#home">Home</a><a href="#story">Our Story</a><a href="#why">Why Our Ghee</a><a href="#products">Products</a>
+          <a href="#home">Home</a><a href="#offers">Offers</a><a href="#story">Our Story</a><a href="#why">Why Our Ghee</a><a href="#products">Products</a>
         </nav>
         <div className="nav-end"><a className="nav-shop" href="#products">Shop Now <ArrowUpRight size={15} /></a>
           <button className="menu-open" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="mobile-menu"
@@ -65,7 +89,7 @@ function Home() {
       </header>
       <dialog ref={dialog} id="mobile-menu" className="mobile-menu" onClose={() => setMenuOpen(false)} aria-label="Mobile navigation" data-lenis-prevent="">
         <div className="menu-top"><span>SAWAI GIR AMRUT</span><button aria-label="Close navigation" onClick={closeMenu}>Close ×</button></div>
-        <nav aria-label="Mobile navigation">{[["Home", "#home"], ["Our Story", "#story"], ["Why Our Ghee", "#why"], ["Products", "#products"]].map(([label, href]) => <a key={href} href={href} onClick={closeMenu}>{label}<ArrowUpRight size={28} /></a>)}</nav>
+        <nav aria-label="Mobile navigation">{[["Home", "#home"], ["Offers", "#offers"], ["Our Story", "#story"], ["Why Our Ghee", "#why"], ["Products", "#products"]].map(([label, href]) => <a key={href} href={href} onClick={closeMenu}>{label}<ArrowUpRight size={28} /></a>)}</nav>
         <p>Malwadi, Phaltan.<br />Made with tradition.</p>
       </dialog>
       <main id="main">
@@ -93,6 +117,54 @@ function Home() {
           </div>
           <div className="origin-rail">SAWAI GIR FARM <span /> PHALTAN, MAHARASHTRA</div>
         </div>
+        <section className="offers-section section-pad" id="offers" aria-labelledby="offers-title">
+          <div className="offers-header">
+            <p className="section-kicker">FESTIVE BLESSINGS & TRADITION</p>
+            <h2 id="offers-title" className="display">Exclusive<br /><em>Festive Offers.</em></h2>
+            <p className="offers-subtitle">Bring home purity, tradition, and well-being this festive season with our handcrafted Gir cow combos directly from Sawai Gir Farm, Phaltan.</p>
+          </div>
+          <div className="offers-grid">
+            {offers.map((offer) => {
+              const waUrl = "https://wa.me/919156996309?text=" + encodeURIComponent(offer.waMessage);
+              return (
+                <article key={offer.id} className="offer-card">
+                  <div className="offer-card__image-container">
+                    <span className="offer-card__tag">{offer.tag}</span>
+                    <img
+                      src={offer.image}
+                      alt={offer.alt}
+                      className="offer-card__image"
+                      width="1254"
+                      height="1254"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="offer-card__content">
+                    <h3>{offer.title}</h3>
+                    <p className="offer-card__desc">{offer.desc}</p>
+                    <div className="offer-card__pricing">
+                      <span className="offer-card__price-val">₹{offer.price}</span>
+                      <span className="offer-card__price-sub">Special Festive Price · All Inclusive</span>
+                    </div>
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="offer-card__btn"
+                    >
+                      <WhatsappLogo size={20} weight="fill" />
+                      <span>Order Now on WhatsApp</span>
+                      <ArrowUpRight size={17} weight="bold" />
+                    </a>
+                    <p className="offer-card__reassurance">
+                      Direct from Sawai Gir Farm · Confirm details on WhatsApp
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
         <section className="purity-section" aria-labelledby="purity-title">
           <div className="provenance-line"><span>GIR COW MILK</span><span>CURD-CHURNED BUTTER</span><span>THE BILONA METHOD</span></div>
           <div className="purity-composition">
@@ -162,7 +234,7 @@ function Home() {
         <section className="final-section section-pad" aria-labelledby="final-title"><a className="final-purchase" href="#products"><h2 id="final-title">Make room<br /><em>for something golden.</em></h2><span className="final-orbit"><ArrowUpRight size={38} /><small>Shop Now</small></span></a></section>
       </main>
       <footer className="sawai-footer">
-        <div className="footer-main"><a className="footer-brand" href="#home"><img src="/assets/brand/mark.webp" alt="Sawai Gir Amrut" loading="lazy" width="78" height="78" /><span>SAWAI<br /><small>GIR AMRUT</small></span></a><p>A2 Gir cow ghee.<br />Rooted in the Bilona tradition.</p><nav aria-label="Footer navigation"><a href="#story">Our Story</a><a href="#why">Why Our Ghee</a><a href="#products">Products</a><a href="tel:+919156996309">Contact</a></nav><address>Sawai Gir Farm<br />Malwadi, Post Bibi, Tal. Phaltan<br />Satara, Maharashtra 415537<br /><a href="tel:+919156996309">+91 91569 96309</a></address></div>
+        <div className="footer-main"><a className="footer-brand" href="#home"><img src="/assets/brand/mark.webp" alt="Sawai Gir Amrut" loading="lazy" width="78" height="78" /><span>SAWAI<br /><small>GIR AMRUT</small></span></a><p>A2 Gir cow ghee.<br />Rooted in the Bilona tradition.</p><nav aria-label="Footer navigation"><a href="#offers">Offers</a><a href="#story">Our Story</a><a href="#why">Why Our Ghee</a><a href="#products">Products</a><a href="tel:+919156996309">Contact</a></nav><address>Sawai Gir Farm<br />Malwadi, Post Bibi, Tal. Phaltan<br />Satara, Maharashtra 415537<br /><a href="tel:+919156996309">+91 91569 96309</a></address></div>
         <div className="footer-bottom"><span>© 2026 Sawai Gir Amrut. All rights reserved.</span><span>Made with tradition. Presented with care.</span><a href="#home" aria-label="Back to top">Back to top ↑</a></div>
       </footer>
       <OfferPopup />

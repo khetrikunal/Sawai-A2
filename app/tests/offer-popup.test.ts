@@ -61,4 +61,59 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(cssContent).toContain(".offer-modal__image");
     expect(cssContent).toContain("aspect-ratio: 1 / 1");
   });
+
+  test("locates both offer images in public directory with valid JPEG bytes", () => {
+    const offer1Path = join(root, "public", "offer 1.jpeg");
+    const offerPath = join(root, "public", "offer.jpeg");
+
+    expect(existsSync(offer1Path)).toBe(true);
+    expect(existsSync(offerPath)).toBe(true);
+
+    const buf1 = readFileSync(offer1Path);
+    const buf2 = readFileSync(offerPath);
+
+    // JPEG SOI marker
+    expect(buf1[0]).toBe(0xff);
+    expect(buf1[1]).toBe(0xd8);
+    expect(buf1[2]).toBe(0xff);
+
+    expect(buf2[0]).toBe(0xff);
+    expect(buf2[1]).toBe(0xd8);
+    expect(buf2[2]).toBe(0xff);
+  });
+
+  test("homepage renders the Offers section with both promotional cards and WhatsApp links", () => {
+    const indexContent = readFileSync(indexPath, "utf8");
+
+    // Section structure
+    expect(indexContent).toContain('id="offers"');
+    expect(indexContent).toContain("Exclusive");
+    expect(indexContent).toContain("Festive Offers");
+    expect(indexContent).toContain("offers-grid");
+
+    // Both offer images referenced
+    expect(indexContent).toContain("/offer%201.jpeg");
+    expect(indexContent).toContain("/offer.jpeg");
+
+    // Offer details
+    expect(indexContent).toContain("Pavitra Bhet Combo");
+    expect(indexContent).toContain("Satvik Sangam Combo");
+
+    // WhatsApp order buttons with specific messages
+    expect(indexContent).toContain("Diwali Pavitra Bhet Combo");
+    expect(indexContent).toContain("Diwali Satvik Sangam Combo");
+    expect(indexContent).toContain("https://wa.me/919156996309?text=");
+
+    // Navigation links updated
+    expect(indexContent).toContain('href="#offers"');
+  });
+
+  test("sawai.css includes styles for the homepage offers section and cards", () => {
+    const cssContent = readFileSync(cssPath, "utf8");
+    expect(cssContent).toContain(".offers-section");
+    expect(cssContent).toContain(".offers-grid");
+    expect(cssContent).toContain(".offer-card");
+    expect(cssContent).toContain(".offer-card__image-container");
+    expect(cssContent).toContain(".offer-card__btn");
+  });
 });
