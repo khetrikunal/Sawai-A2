@@ -205,8 +205,40 @@ export function PurchaseForm({ product, quantity: initialQty = 1, onClose, onSuc
       const loaded = await loadRazorpayScript();
       if (!loaded) throw new Error("Failed to load payment gateway. Please try again.");
 
-      // 3. Open Razorpay Checkout
+      // 3. Open Razorpay Checkout.
+      //
+      // CRITICAL — dialog top-layer vs. Razorpay overlay z-index:
+      // <dialog showModal()> is placed in the browser "top layer", a special stacking
+      // context painted ABOVE all CSS z-index values — including Razorpay's checkout
+      // overlay (z-index: 2147483647). Leaving our dialog open when rz.open() is called
+      // causes the Razorpay modal to render invisibly behind it. The user sees our
+      // "Opening payment gateway…" spinner forever because ondismiss / handler never fire.
+      //
+      // Fix: close our dialog just before rz.open(), then restore it in every callback
+      // path (success, cancellation, error) via the one-shot settle() helper below.
+      dialogRef.current?.close();
+
       await new Promise<void>((resolve, reject) => {
+        // Safety net: if Razorpay fires no lifecycle callback within 3 minutes
+        // (e.g. silent network failure after open()), reopen our dialog and surface
+        // a recoverable error instead of leaving the user on a blank screen forever.
+        let settled = false;
+        const checkoutTimer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          dialogRef.current?.showModal();
+          reject(new Error("Payment gateway did not respond. Please check your connection and try again."));
+        }, 180_000);
+
+        /** Executes fn exactly once; clears the timer and restores the dialog first. */
+        const settle = (fn: () => void) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(checkoutTimer);
+          dialogRef.current?.showModal();
+          fn();
+        };
+
         const options = {
           key: orderResult.keyId,
           amount: orderResult.amountPaise,
@@ -229,10 +261,12 @@ export function PurchaseForm({ product, quantity: initialQty = 1, onClose, onSuc
             backdropclose: false,
             escape: true,
             ondismiss: () => {
-              // User closed the Razorpay modal — return cleanly to the form state
-              setStep("form");
-              setSubmitting(false);
-              resolve();
+              // User dismissed the Razorpay modal — restore dialog in form state.
+              settle(() => {
+                setStep("form");
+                setSubmitting(false);
+                resolve();
+              });
             },
           },
           handler: async (response: {
@@ -250,28 +284,36 @@ export function PurchaseForm({ product, quantity: initialQty = 1, onClose, onSuc
                   orderNumber: orderResult.orderNumber,
                 },
               });
-              if (verified.success) {
-                setSuccessOrder(verified.orderNumber);
-                setStep("success");
-                onSuccess(verified.orderNumber);
-                resolve();
-              } else {
-                reject(new Error("Payment verification failed"));
-              }
+              settle(() => {
+                if (verified.success) {
+                  setSuccessOrder(verified.orderNumber);
+                  setStep("success");
+                  onSuccess(verified.orderNumber);
+                  resolve();
+                } else {
+                  reject(new Error("Payment verification failed"));
+                }
+              });
             } catch (err) {
-              reject(err);
+              settle(() => reject(err instanceof Error ? err : new Error(String(err))));
             }
           },
         };
         const rz = new window.Razorpay(options);
-        // Do not reject the entire checkout on an individual method attempt failure.
-        // Razorpay's modal provides retries and fallbacks (UPI QR code, UPI ID collect, cards, etc.).
+        // Razorpay fires payment.failed on a declined attempt; ondismiss fires when the
+        // user then closes the modal. Log but do not reject here — that would skip the
+        // retry UI Razorpay's modal already provides.
         rz.on("payment.failed", (response: any) => {
-          console.warn("[Razorpay] Payment attempt was declined or cancelled:", response?.error);
+          console.warn("[Razorpay] Payment attempt failed:", response?.error);
         });
         rz.open();
       });
     } catch (err: any) {
+      // Ensure the dialog is visible to show the failure state.
+      // It may have been closed before rz.open() was called.
+      if (dialogRef.current && !dialogRef.current.open) {
+        dialogRef.current.showModal();
+      }
       console.error("[PurchaseForm] Order/Payment submission error:", err?.message || err, err?.stack, JSON.stringify(err));
       const msg = err?.message || (typeof err === "string" ? err : "Something went wrong. Please try again.");
       setFailureMsg(msg);
