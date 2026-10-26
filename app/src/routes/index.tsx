@@ -1,18 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, ArrowDown, Plus, Minus, WhatsappLogo } from "@phosphor-icons/react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { ArrowUpRight, ArrowDown, Plus, Minus } from "@phosphor-icons/react";
 import { ScrollScrub } from "@/components/scroll-scrub/scroll-scrub";
 import { scrollScrubScenes, scrollScrubTheme } from "@/scroll-scrub-scenes";
 import { useCampaignMotion } from "@/components/sawai/use-campaign-motion";
 import { StructuredData } from "@/components/StructuredData";
 import { OfferPopup } from "@/components/OfferPopup";
+import { PurchaseForm } from "@/components/PurchaseForm";
+import type { PurchaseProduct } from "@/components/PurchaseForm";
+
+/** Minimal offer type emitted by OfferPopup's onBuyNow callback */
+interface OfferTrigger { id: string; title: string; price: number; }
 
 export const Route = createFileRoute("/")({ component: Home });
+
 const sizes = [
-  { name: "200 ml", mrp: 800, price: 640, discount: 20, note: "A little richness, every day." },
-  { name: "500 ml", mrp: 2000, price: 1600, discount: 20, note: "For the heart of your kitchen." },
-  { name: "1 Litre", mrp: 4000, price: 3200, discount: 20, note: "For families and professional kitchens." },
+  { id: "ghee-200ml", name: "200 ml", mrp: 800, price: 640, discount: 20, note: "A little richness, every day." },
+  { id: "ghee-500ml", name: "500 ml", mrp: 2000, price: 1600, discount: 20, note: "For the heart of your kitchen." },
+  { id: "ghee-1l", name: "1 Litre", mrp: 4000, price: 3200, discount: 20, note: "For families and professional kitchens." },
 ];
+
 const offers = [
   {
     id: "offer-pavitra-bhet",
@@ -22,8 +29,6 @@ const offers = [
     price: 349,
     image: "/offer%201.jpeg",
     alt: "Sawai Gir Amrut Festive Offer - 200ml A2 Gir Cow Ghee, 50ml Gomutra, and 1 Govari for ₹349",
-    waMessage:
-      "Hello Sawai Gir Amrut, I would like to order the Diwali Pavitra Bhet Combo (200ml Ghee + 50ml Gomutra + 1 Govari @ ₹349). Please confirm availability and delivery.",
   },
   {
     id: "offer-satvik-sangam",
@@ -33,17 +38,17 @@ const offers = [
     price: 349,
     image: "/offer.jpeg",
     alt: "Sawai Gir Amrut Wellness Offer - 200ml A2 Gir Cow Ghee, 90ml Gomutra, and 1 Govari for ₹349",
-    waMessage:
-      "Hello Sawai Gir Amrut, I would like to order the Diwali Satvik Sangam Combo (200ml Ghee + 90ml Gomutra + 1 Govari @ ₹349). Please confirm availability and delivery.",
   },
 ];
+
 const schema = JSON.stringify({
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "Organization", name: "Sawai Gir Amrut", url: "https://sawai-ghee.higgsfield.app", logo: "https://sawai-ghee.higgsfield.app/assets/brand/logo.webp", telephone: "+91 91569 96309", address: { "@type": "PostalAddress", streetAddress: "Malwadi, Post Bibi, Tal. Phaltan", addressLocality: "Satara", addressRegion: "Maharashtra", postalCode: "415537", addressCountry: "IN" } },
-    { "@type": "WebSite", name: "Sawai Gir Amrut", url: "https://sawai-ghee.higgsfield.app" },
+    { "@type": "Organization", name: "Sawai Gir Amrut", url: "https://sawaighee.com", logo: "https://sawaighee.com/assets/brand/logo.webp", telephone: "+91 91569 96309", address: { "@type": "PostalAddress", streetAddress: "Malwadi, Post Bibi, Tal. Phaltan", addressLocality: "Satara", addressRegion: "Maharashtra", postalCode: "415537", addressCountry: "IN" } },
+    { "@type": "WebSite", name: "Sawai Gir Amrut", url: "https://sawaighee.com" },
   ],
 });
+
 function Home() {
   useCampaignMotion();
   const dialog = useRef<HTMLDialogElement>(null);
@@ -53,16 +58,20 @@ function Home() {
   const film = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [filmError, setFilmError] = useState(false);
+
+  // Purchase form state
+  const [purchaseProduct, setPurchaseProduct] = useState<PurchaseProduct | null>(null);
+  const [purchaseQty, setPurchaseQty] = useState(1);
+
   useEffect(() => {
     if (!menuOpen) return;
     const saved = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = saved; };
   }, [menuOpen]);
+
   const closeMenu = () => { dialog.current?.close(); setMenuOpen(false); };
-  const orderUrl = "https://wa.me/919156996309?text=" + encodeURIComponent(
-    "Hello, I would like to order " + quantity + " jar" + (quantity > 1 ? "s" : "") + " of Sawai Gir Amrut A2 Gir Cow Bilona Ghee (" + sizes[size].name + "). Please confirm the current price, availability and delivery."
-  );
+
   const toggleFilm = async () => {
     if (!film.current) return;
     if (film.current.paused) {
@@ -70,6 +79,40 @@ function Home() {
       catch { setFilmError(true); setPlaying(false); }
     } else { film.current.pause(); setPlaying(false); }
   };
+
+  /** Open the purchase form for the selected ghee jar */
+  const openGheePurchase = useCallback(() => {
+    const s = sizes[size];
+    setPurchaseProduct({
+      id: s.id,
+      name: `Sawai Gir Amrut A2 Gir Cow Bilona Ghee – ${s.name}`,
+      price: s.price,
+      requiresDelivery: true,
+      maxQuantity: 20,
+    });
+    setPurchaseQty(quantity);
+  }, [size, quantity]);
+
+  /** Open the purchase form for a combo offer */
+  const openOfferPurchase = useCallback((offer: OfferTrigger) => {
+    setPurchaseProduct({
+      id: offer.id,
+      name: offer.title,
+      price: offer.price,
+      requiresDelivery: true,
+      maxQuantity: 10,
+    });
+    setPurchaseQty(1);
+  }, []);
+
+  const closePurchaseForm = useCallback(() => {
+    setPurchaseProduct(null);
+  }, []);
+
+  const handleOrderSuccess = useCallback((_orderNumber: string) => {
+    // Form handles its own success state; we can do extra things here if needed
+  }, []);
+
   return (
     <div id="sawai" className="sawai">
       <StructuredData json={schema} />
@@ -119,50 +162,37 @@ function Home() {
         </div>
         <section className="offers-section section-pad" id="offers" aria-labelledby="offers-title">
           <div className="offers-header">
-            <p className="section-kicker">FESTIVE BLESSINGS & TRADITION</p>
+            <p className="section-kicker">FESTIVE BLESSINGS &amp; TRADITION</p>
             <h2 id="offers-title" className="display">Exclusive<br /><em>Festive Offers.</em></h2>
             <p className="offers-subtitle">Bring home purity, tradition, and well-being this festive season with our handcrafted Gir cow combos directly from Sawai Gir Farm, Phaltan.</p>
           </div>
           <div className="offers-grid">
-            {offers.map((offer) => {
-              const waUrl = "https://wa.me/919156996309?text=" + encodeURIComponent(offer.waMessage);
-              return (
-                <article key={offer.id} className="offer-card">
-                  <div className="offer-card__image-container">
-                    <span className="offer-card__tag">{offer.tag}</span>
-                    <img
-                      src={offer.image}
-                      alt={offer.alt}
-                      className="offer-card__image"
-                      width="1254"
-                      height="1254"
-                      loading="lazy"
-                    />
+            {offers.map((offer) => (
+              <article key={offer.id} className="offer-card">
+                <div className="offer-card__image-container">
+                  <span className="offer-card__tag">{offer.tag}</span>
+                  <img src={offer.image} alt={offer.alt} className="offer-card__image" width="1254" height="1254" loading="lazy" />
+                </div>
+                <div className="offer-card__content">
+                  <h3>{offer.title}</h3>
+                  <p className="offer-card__desc">{offer.desc}</p>
+                  <div className="offer-card__pricing">
+                    <span className="offer-card__price-val">₹{offer.price}</span>
+                    <span className="offer-card__price-sub">Special Festive Price · All Inclusive</span>
                   </div>
-                  <div className="offer-card__content">
-                    <h3>{offer.title}</h3>
-                    <p className="offer-card__desc">{offer.desc}</p>
-                    <div className="offer-card__pricing">
-                      <span className="offer-card__price-val">₹{offer.price}</span>
-                      <span className="offer-card__price-sub">Special Festive Price · All Inclusive</span>
-                    </div>
-                    <a
-                      href={waUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="offer-card__btn"
-                    >
-                      <WhatsappLogo size={20} weight="fill" />
-                      <span>Order Now on WhatsApp</span>
-                      <ArrowUpRight size={17} weight="bold" />
-                    </a>
-                    <p className="offer-card__reassurance">
-                      Direct from Sawai Gir Farm · Confirm details on WhatsApp
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
+                  <button
+                    type="button"
+                    className="offer-card__btn"
+                    id={`buy-${offer.id}`}
+                    onClick={() => openOfferPurchase(offer)}
+                  >
+                    <span>Order Now – ₹{offer.price}</span>
+                    <ArrowUpRight size={17} weight="bold" />
+                  </button>
+                  <p className="offer-card__reassurance">Secure payment via Razorpay · Direct from Sawai Gir Farm</p>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
         <section className="purity-section" aria-labelledby="purity-title">
@@ -204,7 +234,7 @@ function Home() {
           <figure className="founder-photo" data-parallax=""><img src="/assets/brand/founders.webp" alt="The Sawai team presenting their original Gir Amrut ghee jars" width="1400" height="646" loading="lazy" /><figcaption>The people behind Sawai Gir Amrut. Malwadi, Phaltan, Maharashtra.</figcaption></figure>
           <div className="heritage-prose"><p>At Sawai Gir Farm, the familiar rhythm of milk, curd, butter and ghee carries forward a deeply Indian tradition.</p><p>Our home is Malwadi, Phaltan. Our purpose is to bring the aroma and texture of Bilona ghee into the everyday kitchen.</p><a className="heritage-contact" href="tel:+919156996309">Talk to the farm <ArrowUpRight size={18} /></a></div>
         </section>
-        <section className="product-section" id="products" aria-labelledby="product-title">
+        <section className="product-section" id="products">
           <div className="product-gallery"><img src="/assets/brand/collection.webp" srcSet="/assets/brand/collection-720.webp 720w, /assets/brand/collection-1280.webp 1280w, /assets/brand/collection.webp 1920w" sizes="(max-width: 860px) 100vw, 62vw" alt="Sawai Gir Amrut ghee collection in its original emerald and gold packaging" width="1920" height="1071" loading="lazy" /><span>AN EVERYDAY RITUAL, BEAUTIFULLY MADE.</span></div>
           <div className="product-selection"><p className="section-kicker">BRING HOME THE GOLD</p><h2 id="product-title">Sawai<br /><em>Gir Amrut.</em></h2><p className="product-subtitle">A2 Gir Cow Bilona Ghee</p>
             <fieldset className="size-options"><legend>Choose your jar</legend>{sizes.map((item, i) => <label key={item.name} className={i === size ? "selected" : ""}><input name="jar-size" type="radio" checked={i === size} onChange={() => setSize(i)} value={item.name} /><span>{item.name}</span></label>)}</fieldset>
@@ -218,26 +248,48 @@ function Home() {
               <small>Price per jar · MRP ₹{sizes[size].mrp.toLocaleString("en-IN")}</small>
             </div>
             <div className="quantity-line"><span id="quantity-label">Quantity</span><div aria-labelledby="quantity-label" className="quantity-control"><button aria-label="Decrease quantity" disabled={quantity === 1} onClick={() => setQuantity(q => Math.max(1, q - 1))}><Minus size={15} /></button><output aria-live="polite">{quantity}</output><button aria-label="Increase quantity" disabled={quantity === 20} onClick={() => setQuantity(q => Math.min(20, q + 1))}><Plus size={15} /></button></div></div>
-            <a className="purchase-row" href={orderUrl} target="_blank" rel="noopener noreferrer"><span>Shop Now</span><ArrowUpRight size={26} /><span className="sr-only">. Opens a WhatsApp order enquiry in a new tab.</span></a>
-            <p className="purchase-note">Order with our team on WhatsApp. Current price, availability and delivery are confirmed before payment.</p>
+            <button
+              id="shop-now-btn"
+              type="button"
+              className="purchase-row"
+              onClick={openGheePurchase}
+            >
+              <span>Shop Now</span><ArrowUpRight size={26} />
+            </button>
+            <p className="purchase-note">Secure online payment via Razorpay · UPI, Cards &amp; Net Banking accepted</p>
           </div>
         </section>
         <section className="trust-section section-pad" aria-labelledby="trust-title">
           <div className="trust-intro"><h2 className="display" id="trust-title">Know the source.<br /><em>Trust the process.</em></h2><p>Good ghee begins with clear answers. Here is the story behind the jar.</p></div>
           <dl className="quality-ledger"><div><dt>Our source</dt><dd>Sawai Gir Farm, Phaltan</dd></div><div><dt>Our milk</dt><dd>Gir cow milk</dd></div><div><dt>Our method</dt><dd>Curd, Bilona-churned butter, slow simmer</dd></div><div><dt>Our home</dt><dd>Malwadi, Satara, Maharashtra</dd></div></dl>
-          <div className="ghee-faq"><details><summary>What makes the Bilona method different?<Plus size={18} /></summary><p>It begins with cultured curd. The curd is churned into butter before being heated into ghee, following the traditional milk-to-curd-to-butter sequence.</p></details><details><summary>Which jar should I choose?<Plus size={18} /></summary><p>Choose 200 ml for a taste, 500 ml for a smaller kitchen, or 1 Litre for regular family cooking.</p></details><details><summary>How do I place an order?<Plus size={18} /></summary><p>Select a size and quantity, then choose Shop Now to open a WhatsApp enquiry. Our team confirms the current price and delivery before payment.</p></details></div>
+          <div className="ghee-faq"><details><summary>What makes the Bilona method different?<Plus size={18} /></summary><p>It begins with cultured curd. The curd is churned into butter before being heated into ghee, following the traditional milk-to-curd-to-butter sequence.</p></details><details><summary>Which jar should I choose?<Plus size={18} /></summary><p>Choose 200 ml for a taste, 500 ml for a smaller kitchen, or 1 Litre for regular family cooking.</p></details><details><summary>How do I place an order?<Plus size={18} /></summary><p>Select a size and quantity, then click Shop Now to proceed to secure checkout via Razorpay.</p></details></div>
         </section>
         <section className="lifestyle-section" aria-labelledby="lifestyle-title">
           <img src="/assets/brand/collection.webp" alt="Sawai ghee alongside brass utensils, flowers and a traditionally set Indian table" loading="lazy" width="1920" height="1071" data-parallax="" />
           <div className="lifestyle-overlay" /><div className="lifestyle-copy"><h2 id="lifestyle-title">A spoonful of home.<br /><em>Every single day.</em></h2><p>Over warm dal. On a fresh roti.<br />In the moments that bring us together.</p></div>
         </section>
-        <section className="final-section section-pad" aria-labelledby="final-title"><a className="final-purchase" href="#products"><h2 id="final-title">Make room<br /><em>for something golden.</em></h2><span className="final-orbit"><ArrowUpRight size={38} /><small>Shop Now</small></span></a></section>
+        <section className="final-section section-pad" aria-labelledby="final-title">
+          <button id="final-shop-btn" type="button" className="final-purchase" onClick={() => { window.location.hash = "#products"; openGheePurchase(); }}>
+            <h2 id="final-title">Make room<br /><em>for something golden.</em></h2>
+            <span className="final-orbit"><ArrowUpRight size={38} /><small>Shop Now</small></span>
+          </button>
+        </section>
       </main>
       <footer className="sawai-footer">
         <div className="footer-main"><a className="footer-brand" href="#home"><img src="/assets/brand/mark.webp" alt="Sawai Gir Amrut" loading="lazy" width="78" height="78" /><span>SAWAI<br /><small>GIR AMRUT</small></span></a><p>A2 Gir cow ghee.<br />Rooted in the Bilona tradition.</p><nav aria-label="Footer navigation"><a href="#offers">Offers</a><a href="#story">Our Story</a><a href="#why">Why Our Ghee</a><a href="#products">Products</a><a href="tel:+919156996309">Contact</a></nav><address>Sawai Gir Farm<br />Malwadi, Post Bibi, Tal. Phaltan<br />Satara, Maharashtra 415537<br /><a href="tel:+919156996309">+91 91569 96309</a></address></div>
         <div className="footer-bottom"><span>© 2026 Sawai Gir Amrut. All rights reserved.</span><span>Made with tradition. Presented with care.</span><a href="#home" aria-label="Back to top">Back to top ↑</a></div>
       </footer>
-      <OfferPopup />
+      <OfferPopup onBuyNow={openOfferPurchase} />
+
+      {/* Purchase Form Dialog — rendered only when a product is selected */}
+      {purchaseProduct && (
+        <PurchaseForm
+          product={purchaseProduct}
+          quantity={purchaseQty}
+          onClose={closePurchaseForm}
+          onSuccess={handleOrderSuccess}
+        />
+      )}
     </div>
   );
 }

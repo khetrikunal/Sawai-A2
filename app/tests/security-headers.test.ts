@@ -6,7 +6,10 @@ test("allows the host approval iframe and preserves the response", async () => {
   expect(response.status).toBe(201);
   expect(await response.text()).toBe("ok");
   expect(response.headers.get("content-security-policy")).toContain(
-    "frame-src 'self' https://auth.higgsfield.app https://auth.higgsfield-dev.app;",
+    "https://auth.higgsfield.app",
+  );
+  expect(response.headers.get("content-security-policy")).toContain(
+    "https://api.razorpay.com",
   );
   expect(response.headers.get("content-security-policy")).not.toContain("frame-ancestors");
 });

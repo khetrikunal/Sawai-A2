@@ -1,14 +1,25 @@
 import { useState, useEffect, useRef } from "react";
-import { X, WhatsappLogo, ArrowUpRight } from "@phosphor-icons/react";
+import { X, ArrowUpRight } from "@phosphor-icons/react";
 
-const WHATSAPP_NUMBER = "919156996309";
-const PREFILLED_MESSAGE =
-  "Hello Sawai Gir Amrut, I would like to order the Diwali Special Combo (200ml Gir Cow Ghee + Gomutra + Govari @ ₹349). Please confirm availability and delivery.";
-
-const ORDER_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(PREFILLED_MESSAGE)}`;
 const STORAGE_KEY = "sawai_offer_popup_dismissed";
 
-export function OfferPopup() {
+interface OfferProduct {
+  id: string;
+  title: string;
+  price: number;
+}
+
+interface OfferPopupProps {
+  onBuyNow?: (offer: OfferProduct) => void;
+}
+
+const FEATURED_OFFER: OfferProduct = {
+  id: "offer-satvik-sangam",
+  title: "Satvik Sangam Combo",
+  price: 349,
+};
+
+export function OfferPopup({ onBuyNow }: OfferPopupProps) {
   const [isOpen, setIsOpen] = useState(false);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -68,6 +79,10 @@ export function OfferPopup() {
       // Safe fallback
     }
     setIsOpen(false);
+
+    if (onBuyNow) {
+      onBuyNow(FEATURED_OFFER);
+    }
   };
 
   if (!isOpen) return null;
@@ -124,20 +139,17 @@ export function OfferPopup() {
               <span className="offer-modal__deal-price">₹349</span>
             </div>
 
-            <a
-              href={ORDER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               className="offer-modal__order-btn"
               onClick={handleOrderClick}
             >
-              <WhatsappLogo size={22} weight="fill" />
-              <span>Order Now</span>
+              <span>Order Now – ₹349</span>
               <ArrowUpRight size={18} weight="bold" />
-            </a>
+            </button>
 
             <p className="offer-modal__note">
-              Instant booking via WhatsApp · Fresh batch directly from Sawai Gir Farm
+              Secure payment via Razorpay · Fresh batch from Sawai Gir Farm
             </p>
           </div>
         </div>

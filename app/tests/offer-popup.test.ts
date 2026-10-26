@@ -21,23 +21,17 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(buffer[2]).toBe(0xff);
   });
 
-  test("OfferPopup component uses correct WhatsApp business number and pre-filled message", () => {
+  test("OfferPopup component uses Razorpay checkout and correct content", () => {
     expect(existsSync(componentPath)).toBe(true);
     const content = readFileSync(componentPath, "utf8");
 
-    // Official business WhatsApp number from existing site
-    expect(content).toContain("919156996309");
-    expect(content).toContain("https://wa.me/");
-
-    // Prefilled message contains offer details
-    expect(content).toContain("Diwali Special Combo");
+    // Offer price still present
     expect(content).toContain("349");
 
-    // Link targets and security
-    expect(content).toContain('target="_blank"');
-    expect(content).toContain('rel="noopener noreferrer"');
+    // Uses onBuyNow callback prop (Razorpay flow) instead of WhatsApp link
+    expect(content).toContain("onBuyNow");
 
-    // Accessibility attributes
+    // Accessibility attributes preserved
     expect(content).toContain('role="dialog"');
     expect(content).toContain('aria-modal="true"');
     expect(content).toContain('aria-labelledby=');
@@ -47,10 +41,12 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(content).toContain('src="/offer.jpeg"');
   });
 
-  test("index.tsx imports and renders OfferPopup", () => {
+  test("index.tsx imports and renders OfferPopup with Razorpay callback", () => {
     const indexContent = readFileSync(indexPath, "utf8");
     expect(indexContent).toContain('import { OfferPopup } from "@/components/OfferPopup"');
-    expect(indexContent).toContain("<OfferPopup />");
+    // OfferPopup is rendered with the onBuyNow callback (opens Razorpay checkout)
+    expect(indexContent).toContain("<OfferPopup");
+    expect(indexContent).toContain("onBuyNow");
   });
 
   test("sawai.css includes responsive and styled rules for offer popup", () => {
@@ -82,7 +78,7 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(buf2[2]).toBe(0xff);
   });
 
-  test("homepage renders the Offers section with both promotional cards and WhatsApp links", () => {
+  test("homepage renders the Offers section with both promotional cards and Razorpay checkout", () => {
     const indexContent = readFileSync(indexPath, "utf8");
 
     // Section structure
@@ -95,16 +91,15 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(indexContent).toContain("/offer%201.jpeg");
     expect(indexContent).toContain("/offer.jpeg");
 
-    // Offer details
+    // Offer details — both combos must be present
     expect(indexContent).toContain("Pavitra Bhet Combo");
     expect(indexContent).toContain("Satvik Sangam Combo");
 
-    // WhatsApp order buttons with specific messages
-    expect(indexContent).toContain("Diwali Pavitra Bhet Combo");
-    expect(indexContent).toContain("Diwali Satvik Sangam Combo");
-    expect(indexContent).toContain("https://wa.me/919156996309?text=");
+    // Buttons now open the Razorpay purchase form (not WhatsApp)
+    expect(indexContent).toContain("openOfferPurchase");
+    expect(indexContent).toContain("PurchaseForm");
 
-    // Navigation links updated
+    // Navigation links present
     expect(indexContent).toContain('href="#offers"');
   });
 
