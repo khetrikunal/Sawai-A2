@@ -9,11 +9,11 @@ export function applySecurityHeaders(response: Response): Response {
   headers.set(
     "Content-Security-Policy",
     "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com; " +
+      "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://cdn.razorpay.com; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "font-src 'self' https://fonts.gstatic.com; " +
       "img-src 'self' data: https:; media-src 'self' blob: https:; " +
-      "connect-src 'self' https: https://api.razorpay.com https://lumberjack.razorpay.com; " +
+      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://cdn.razorpay.com https:; " +
       "frame-src 'self' https://auth.higgsfield.app https://auth.higgsfield-dev.app https://api.razorpay.com https://checkout.razorpay.com; " +
       "base-uri 'self'; form-action 'self'",
   );

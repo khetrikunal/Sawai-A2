@@ -37,9 +37,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
  { rel: "preload", as: "image", href: "/assets/world/scene-01-poster.png", media: "(min-width: 861px) and (hover: hover) and (pointer: fine)" },
  { rel: "preload", as: "image", href: "/assets/world/scene-01-mobile-poster.png", media: "(max-width: 860px), (hover: none) and (pointer: coarse)" },
  ],
- scripts: [
-   { src: "https://checkout.razorpay.com/v1/checkout.js", async: true },
- ],
+ scripts: [],
  }),
  shellComponent: RootShell, component: RootComponent, notFoundComponent: NotFoundComponent, errorComponent: ErrorComponent,
 });
