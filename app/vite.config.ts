@@ -20,10 +20,18 @@ const QUANTA_ICONS_SHIM = fileURLToPath(
 );
 
 export default defineConfig(({ command, mode }) => {
+  if (command === "build") {
+    process.env.NODE_ENV = "production";
+  }
   const designInspectorEnabled = process.env.HF_DESIGN_INSPECTOR === "1" || mode === "design";
   const vercelBuild = process.env.VERCEL === "1";
 
   return {
+    oxc: {
+      jsx: {
+        development: command === "serve",
+      },
+    },
     // fsevents can miss edits under some setups (bun-launched dev, synced/virtual
     // dirs), leaving HMR dead so changes only appear after a manual restart.
     // Polling the watcher makes file changes reliably trigger HMR / SSR reload.

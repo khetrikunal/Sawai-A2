@@ -18,7 +18,7 @@
     "typecheck": "tsr generate && tsc --noEmit",
     "check:ui": "node scripts/check-ui.mjs",
     "check:adapted": "bun scripts/check-adaptation.mjs",
-    "test": "bun test tests/*.test.ts"
+    "test": "bun test ./tests/"
   },
   "dependencies": {
     "@base-ui/react": "1.5.0",
