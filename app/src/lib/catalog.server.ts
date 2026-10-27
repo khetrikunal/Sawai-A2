@@ -50,7 +50,7 @@ export const PRODUCT_CATALOG: CatalogProduct[] = [
     id: "offer-pavitra-bhet",
     name: "Pavitra Bhet Combo",
     description:
-      "200 ml Pure A2 Gir Cow Bilona Ghee + 50 ml Gomutra + 1 Cow Dung Govari – Festive Exclusive",
+      "100 ml Pure A2 Gir Cow Bilona Ghee + 50 ml Gomutra + 1 Cow Dung Govari – Festive Exclusive",
     price: 349,
     productType: "combo",
     requiresDelivery: true,
@@ -60,7 +60,7 @@ export const PRODUCT_CATALOG: CatalogProduct[] = [
     id: "offer-satvik-sangam",
     name: "Satvik Sangam Combo",
     description:
-      "200 ml Pure A2 Gir Cow Bilona Ghee + 90 ml Gomutra + 1 Cow Dung Govari – Festive Exclusive",
+      "100 ml Pure A2 Gir Cow Bilona Ghee + 90 ml Gomutra + 1 Cow Dung Govari – Festive Exclusive",
     price: 349,
     productType: "combo",
     requiresDelivery: true,

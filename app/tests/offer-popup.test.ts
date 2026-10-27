@@ -37,8 +37,10 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(content).toContain('aria-labelledby=');
     expect(content).toContain('aria-label="Close offer popup"');
 
-    // Correct image path
-    expect(content).toContain('src="/offer.jpeg"');
+    // Updated offer artwork and quantity
+    expect(content).toContain('src="/new%20offer%202.png"');
+    expect(content).toContain("100ml A2 Gir Cow Ghee, 90ml Gomutra");
+    expect(content).toContain("100ml Pure Gir Cow Bilona Ghee, 90ml Gomutra");
   });
 
   test("index.tsx imports and renders OfferPopup with Razorpay callback", () => {
@@ -58,24 +60,20 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(cssContent).toContain("aspect-ratio: 1 / 1");
   });
 
-  test("locates both offer images in public directory with valid JPEG bytes", () => {
-    const offer1Path = join(root, "public", "offer 1.jpeg");
-    const offerPath = join(root, "public", "offer.jpeg");
+  test("locates both updated offer images with valid image signatures", () => {
+    const newOfferPath = join(root, "public", "new offer.jpeg");
+    const newOffer2Path = join(root, "public", "new offer 2.png");
 
-    expect(existsSync(offer1Path)).toBe(true);
-    expect(existsSync(offerPath)).toBe(true);
+    expect(existsSync(newOfferPath)).toBe(true);
+    expect(existsSync(newOffer2Path)).toBe(true);
 
-    const buf1 = readFileSync(offer1Path);
-    const buf2 = readFileSync(offerPath);
-
-    // JPEG SOI marker
-    expect(buf1[0]).toBe(0xff);
-    expect(buf1[1]).toBe(0xd8);
-    expect(buf1[2]).toBe(0xff);
-
-    expect(buf2[0]).toBe(0xff);
-    expect(buf2[1]).toBe(0xd8);
-    expect(buf2[2]).toBe(0xff);
+    const newOffer = readFileSync(newOfferPath);
+    const newOffer2 = readFileSync(newOffer2Path);
+    expect(newOffer[0]).toBe(0xff);
+    expect(newOffer[1]).toBe(0xd8);
+    expect(newOffer[2]).toBe(0xff);
+    expect(newOffer2[0]).toBe(0x89);
+    expect(newOffer2.subarray(1, 4).toString()).toBe("PNG");
   });
 
   test("homepage renders the Offers section with both promotional cards and Razorpay checkout", () => {
@@ -87,9 +85,12 @@ describe("Offer Popup and WhatsApp Ordering Integration", () => {
     expect(indexContent).toContain("Festive Offers");
     expect(indexContent).toContain("offers-grid");
 
-    // Both offer images referenced
-    expect(indexContent).toContain("/offer%201.jpeg");
-    expect(indexContent).toContain("/offer.jpeg");
+    // Both updated offer images and updated ghee quantity
+    expect(indexContent).toContain("/new%20offer.jpeg");
+    expect(indexContent).toContain("/new%20offer%202.png");
+    expect(indexContent).toContain("100 ml Pure A2 Gir Cow Bilona Ghee + 50 ml Gomutra");
+    expect(indexContent).toContain("100 ml Pure A2 Gir Cow Bilona Ghee + 90 ml Gomutra");
+    expect(indexContent).not.toContain("200 ml Pure A2 Gir Cow Bilona Ghee");
 
     // Offer details — both combos must be present
     expect(indexContent).toContain("Pavitra Bhet Combo");

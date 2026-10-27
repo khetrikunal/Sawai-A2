@@ -120,8 +120,8 @@ export function OfferPopup({ onBuyNow }: OfferPopupProps) {
         <div className="offer-modal__body">
           <div className="offer-modal__image-wrapper">
             <img
-              src="/offer.jpeg"
-              alt="Sawai Gir Amrut Diwali Special Offer - 200ml A2 Gir Cow Ghee, 90ml Gomutra, and 1 Govari for ₹349"
+              src="/new%20offer%202.png"
+              alt="Sawai Gir Amrut Diwali Special Offer - 100ml A2 Gir Cow Ghee, 90ml Gomutra, and 1 Govari for ₹349"
               className="offer-modal__image"
               width="1254"
               height="1254"
@@ -130,7 +130,7 @@ export function OfferPopup({ onBuyNow }: OfferPopupProps) {
           </div>
 
           <p id="offer-popup-desc" className="sr-only">
-            Diwali Special Festive Combo: 200ml Pure Gir Cow Bilona Ghee, 90ml Gomutra, and 1 Pure Cow Dung Govari for ₹349.
+            Diwali Special Festive Combo: 100ml Pure Gir Cow Bilona Ghee, 90ml Gomutra, and 1 Pure Cow Dung Govari for ₹349.
           </p>
 
           <div className="offer-modal__footer">
